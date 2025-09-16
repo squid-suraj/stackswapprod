@@ -7,12 +7,25 @@ const http = require("http");
 
 require("dotenv").config();
 
-app.use(
-  cors({
-    origin:['http://localhost:5173', 'https://stackswapprod-frontend.onrender.com'],
-    credentials: true,
-  })
-);
+// app.use(
+//   cors({
+//     origin:['http://localhost:5173', 'https://stackswapprod-frontend.onrender.com'],
+//     credentials: true,
+//   })
+// );
+
+// CORS configuration
+const corsOptions = {
+  origin: ['http://localhost:5173', 'https://stackswapprod-frontend.onrender.com'],
+  credentials: true,
+};
+
+// Apply CORS middleware
+app.use(cors(corsOptions));
+
+// Handle preflight requests
+app.options('*', cors(corsOptions));
+
 app.use(express.json());
 app.use(cookieParser());
 
