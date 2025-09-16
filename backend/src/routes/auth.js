@@ -31,6 +31,31 @@ authRouter.post("/signup", async (req, res) => {
   }
 });
 
+// authRouter.post("/login", async (req, res) => {
+//   try {
+//     const { emailId, password } = req.body;
+
+//     const user = await User.findOne({ emailId: emailId });
+//     if (!user) {
+//       throw new Error("Invalid credentials");
+//     }
+//     const isPasswordValid = await user.validatePassword(password);
+
+//     if (isPasswordValid) {
+//       const token = await user.getJWT();
+
+//       res.cookie("token", token, {
+//         expires: new Date(Date.now() + 8 * 3600000),
+//       });
+//       res.send("Login Successful!!!");
+//     } else {
+//       throw new Error("Invalid credentials");
+//     }
+//   } catch (err) {
+//     res.status(400).send("ERROR : " + err.message);
+//   }
+// });
+
 authRouter.post("/login", async (req, res) => {
   try {
     const { emailId, password } = req.body;
@@ -39,15 +64,28 @@ authRouter.post("/login", async (req, res) => {
     if (!user) {
       throw new Error("Invalid credentials");
     }
+
     const isPasswordValid = await user.validatePassword(password);
 
     if (isPasswordValid) {
       const token = await user.getJWT();
 
       res.cookie("token", token, {
-        expires: new Date(Date.now() + 8 * 3600000),
+        httpOnly: true,                        // Secure, not accessible by JS
+        secure: true, // Use HTTPS in prod
+        sameSite: 'none',                      // Required for cross-origin
+        expires: new Date(Date.now() + 8 * 3600000), // 8 hours
       });
-      res.send("Login Successful!!!");
+
+      res.status(200).json({
+        success: true,
+        message: "Login Successful!!!",
+        user: {
+          firstName: user.firstName,
+          lastName: user.lastName,
+          emailId: user.emailId,
+        },
+      });
     } else {
       throw new Error("Invalid credentials");
     }
